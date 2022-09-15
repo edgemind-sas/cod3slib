@@ -29,4 +29,4 @@ study = cod3slib.StudyModel.from_yaml(study_filename)
 
 study.run_simu()
 
-ipdb.set_trace()
+#ipdb.set_trace()
