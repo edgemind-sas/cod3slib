@@ -1,0 +1,34 @@
+name: "test 3 components"
+cls: PycSystem
+components:
+  source_elec:
+    cls: PycFlowComponent
+    flows:
+    - name: elec
+      port: out
+
+  source_hydr:
+    cls: PycFlowComponent
+    flows:
+    - name: hydr
+      port: out
+
+  pump:
+    cls: PycFlowComponent
+    flows:
+    - name: hydr
+      port: io
+    - name: elec
+      port: in
+
+connections:
+  - origin_comp: source_elec
+    origin_iface: elec_out
+    target_comp: pump
+    target_iface: elec_in
+
+  - origin_comp: source_hydr
+    origin_iface: hydr_out
+    target_comp: pump
+    target_iface: hydr_in
+
