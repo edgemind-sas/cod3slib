@@ -37,7 +37,7 @@ setup(name='cod3slib',
       platforms='ALL',
       python_requires='>=3.8',
       install_requires=[
-          "pandas>=5.10.0",
+          "pandas>=1.4.4",
           "numpy>=1.23.2",
           "pydantic>=1.10.2",
           "xlsxwriter",
