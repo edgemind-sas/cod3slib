@@ -1,0 +1,20 @@
+name: test
+cls: PycStudy
+description: test
+system_model: system_specs.yaml
+indicators:
+  - component: source_elec
+    var: elec_out
+    stats: [mean, stddev]
+       
+simu_params:
+  nb_runs: 1000
+#  result_filename: test_res.csv
+  schedule:
+    - start: 10
+      end: 100
+      nvalues: 5
+    - 7
+  seed: 1234
+
+
