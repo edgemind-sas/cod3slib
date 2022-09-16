@@ -9,6 +9,7 @@ import uuid
 import subprocess
 import os
 import pathlib
+import plotly.express as px
 import sys
 import math
 #import colored
@@ -136,7 +137,37 @@ class StudyModel(pydantic.BaseModel):
         pass
 
 
+    def indic_to_frame(self):
 
+        return pd.concat([indic.values for indic in self.indicators],
+                         axis=0, ignore_index=True)
+
+
+    def indic_px_line(self,
+                      x="instant",
+                      y="value",
+                      color="name",
+                      markers=True,
+                      layout={},
+                      **px_conf):
+
+        indic_df = self.indic_to_frame()
+
+        idx_stat_sel = indic_df["stat"].isin(["mean"])
+        
+        indic_sel_df = indic_df.loc[idx_stat_sel]
+
+        fig = px.line(indic_sel_df,
+                      x=x, y=y,
+                      color=color,
+                      markers=markers,
+                      **px_conf)
+
+        fig.update_layout(**layout)
+
+        return fig
+        
+        
 # class STOStudyResults(pydantic.BaseModel):
 
 #     meta_data: STOMetaData = pydantic.Field(

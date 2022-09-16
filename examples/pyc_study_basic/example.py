@@ -29,4 +29,8 @@ study = cod3slib.StudyModel.from_yaml(study_filename)
 
 study.run_simu()
 
-#ipdb.set_trace()
+indic_fig = study.indic_px_line()
+
+indic_filename = \
+    os.path.join(".", "indic.html")
+indic_fig.write_html(indic_filename)

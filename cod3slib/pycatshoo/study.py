@@ -42,22 +42,21 @@ class PycStudy(StudyModel):
         [], description="List of indicators")
 
 
-    def prepare_indicators(self):
+    def prepare_simu(self, **kwargs):
 
+        # Set instants
+        instants_list = self.simu_params.get_instants_list()
+
+        # Prepare indicators
         for indic in self.indicators:
+            indic.instants = instants_list
             indic.bkd = \
                 self.system_model.addIndicator(indic.name,
                                                indic.get_expr(),
                                                indic.get_type())
             indic.update_restitution()
-            
-    def prepare_simu(self, **kwargs):
 
-        self.prepare_indicators()
-
-        # Set instants
-        instants_list = self.simu_params.get_instants_list()
-
+        # Simulator configuration
         self.system_model.setTMax(instants_list[-1])
         
         for instant in instants_list:
@@ -79,5 +78,7 @@ class PycStudy(StudyModel):
         self.postproc_simu(**kwargs)
 
     def postproc_simu(self, **kwargs):
-        pass
+
+        for indic in self.indicators:
+            indic.update_values()
 

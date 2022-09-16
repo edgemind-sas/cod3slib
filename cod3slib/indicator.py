@@ -19,13 +19,6 @@ if 'ipdb' in installed_pkg:
     import ipdb  # noqa: 401
 
 PandasDataFrame = typing.TypeVar('pd.core.dataframe')
-
-# Utility functions
-# -----------------
-class IndicatorValue(pydantic.BaseModel):
-    time: float = pydantic.Field(..., description="Instant")
-    mean: float = pydantic.Field(None, description="Mean")
-    stddev: float = pydantic.Field(None, description="Standard deviation")
     
 
 class IndicatorModel(pydantic.BaseModel):
@@ -35,8 +28,9 @@ class IndicatorModel(pydantic.BaseModel):
         None, description="Indicator description")
     unit: str = pydantic.Field(None, description="Indicator unit")
     stats: list = pydantic.Field([], description="Stats to be computed")
-    values: typing.List[IndicatorValue] = pydantic.Field(
-        [], description="Indicator estimates")
+    instants: list = pydantic.Field([], description="Instant of computation")
+    values: PandasDataFrame = pydantic.Field(
+        None, description="Indicator estimates")
     metadata: dict = pydantic.Field(
         {}, description="Dictionary of metadata")
     bkd: typing.Any = pydantic.Field(None, description="Indicator backend handler")
@@ -55,3 +49,4 @@ class IndicatorModel(pydantic.BaseModel):
             obj['description'] = obj['name']
 
         return obj
+
