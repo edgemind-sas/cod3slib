@@ -6,7 +6,23 @@ indicators:
   - component: source_elec
     var: elec_out
     stats: [mean, stddev]
-       
+
+  - component: source_hydr
+    var: hydr_out
+    stats: [mean, stddev]
+
+  - component: pump
+    var: hydr
+    stats: [mean, stddev]
+
+  - component: pump
+    var: hydr_out
+    stats: [mean, stddev]
+
+  - component: pump
+    var: elec
+    stats: [mean, stddev]
+
 simu_params:
   nb_runs: 1000
 #  result_filename: test_res.csv
