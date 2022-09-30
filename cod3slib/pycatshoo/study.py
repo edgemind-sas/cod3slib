@@ -51,29 +51,29 @@ class PycStudy(StudyModel):
         for indic in self.indicators:
             indic.instants = instants_list
             indic.bkd = \
-                self.system_model.addIndicator(indic.name,
+                self.system_model.bkd.addIndicator(indic.name,
                                                indic.get_expr(),
                                                indic.get_type())
             indic.update_restitution()
 
         # Simulator configuration
-        self.system_model.setTMax(instants_list[-1])
+        self.system_model.bkd.setTMax(instants_list[-1])
         
         for instant in instants_list:
-            self.system_model.addInstant(instant)
+            self.system_model.bkd.addInstant(instant)
 
         if self.simu_params.seed:
-            self.system_model.setRNGSeed(self.simu_params.seed)
+            self.system_model.bkd.setRNGSeed(self.simu_params.seed)
 
         if self.simu_params.nb_runs:
-            self.system_model.setNbSeqToSim(self.simu_params.nb_runs)
+            self.system_model.bkd.setNbSeqToSim(self.simu_params.nb_runs)
 
             
     def run_simu(self, **kwargs):
 
         self.prepare_simu(**kwargs)
 
-        self.system_model.simulate()
+        self.system_model.bkd.simulate()
 
         self.postproc_simu(**kwargs)
 

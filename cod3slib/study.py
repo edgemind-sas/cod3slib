@@ -16,6 +16,7 @@ import math
 from . import IndicatorModel
 from . import SystemModel
 import logging
+import pathlib
 
 installed_pkg = {pkg.key for pkg in pkg_resources.working_set}
 if 'ipdb' in installed_pkg:
@@ -55,6 +56,13 @@ class MCSimulationParam(pydantic.BaseModel):
 
         return sorted(instants)
 
+class HooksModel(pydantic.BaseModel):
+
+    before_simu: typing.List[str] = pydantic.Field(
+        None, description="Filenames to be executed before simulation")
+
+    after_simu: typing.List[str] = pydantic.Field(
+        None, description="Filenames to be executed after simulation")
 
 class StudyModel(pydantic.BaseModel):
 
@@ -72,6 +80,9 @@ class StudyModel(pydantic.BaseModel):
 
     simu_params: MCSimulationParam = pydantic.Field(
         None, description="Simulator parametters")
+
+    hooks: HooksModel = pydantic.Field(
+        None, description="Hooks to be executed")
 
     @classmethod
     def get_subclasses(cls, recursive=True):
@@ -139,8 +150,11 @@ class StudyModel(pydantic.BaseModel):
 
     def indic_to_frame(self):
 
-        return pd.concat([indic.values for indic in self.indicators],
-                         axis=0, ignore_index=True)
+        if len(self.indicators) == 0:
+            return None
+        else:
+            return pd.concat([indic.values for indic in self.indicators],
+                             axis=0, ignore_index=True)
 
 
     def indic_px_line(self,
@@ -153,6 +167,9 @@ class StudyModel(pydantic.BaseModel):
 
         indic_df = self.indic_to_frame()
 
+        if indic_df is None:
+            return None
+        
         idx_stat_sel = indic_df["stat"].isin(["mean"])
         
         indic_sel_df = indic_df.loc[idx_stat_sel]

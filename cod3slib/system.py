@@ -10,30 +10,35 @@ if 'ipdb' in installed_pkg:
     import ipdb  # noqa: F401
 
 
-class Connection(pydantic.BaseModel):
+class ConnectionModel(pydantic.BaseModel):
     origin_comp: str = pydantic.Field(..., description="Origin component")
     origin_iface: str = pydantic.Field(..., description="Origin interface")
     target_comp: str = pydantic.Field(..., description="Target component")
     target_iface: str = pydantic.Field(..., description="Target interface")
     bkd: typing.Any = pydantic.Field(None, description="Connection backend handler")
 
-class SystemModel:
+class SystemModel(pydantic.BaseModel):
 
-    def __init__(self, **kwargs):
-        self.name = kwargs.get("name")
+    name: str = pydantic.Field(..., description="System name")
 
-        self.components = kwargs.get("components", {})
+    components: typing.Dict[str, ComponentModel] = \
+        pydantic.Field([], description="List of components")
+    
+    connections: typing.List[ConnectionModel] = \
+        pydantic.Field([], description="List of connections")
 
-        self.connections = [Connection(**connection)
-                            for connection in kwargs.get("connections", [])]
-
-        for comp_name, comp_specs in self.components.items():
-            comp_specs["bkd"] = \
-                ComponentModel.from_dict(name=comp_name,
-                                         **comp_specs)
+    bkd: typing.Any = pydantic.Field(None, description="System backend handler")
+    
         
-        self.update_connection_bkd()
+    @pydantic.validator('components', pre=True)
+    def check_components(cls, value, values, **kwargs):
+        #ipdb.set_trace()
+        value = {comp_name: ComponentModel.from_dict(
+            name=comp_name,**comp) for comp_name, comp in value.items()}
+        #ipdb.set_trace()
+        return value
 
+        
     @classmethod
     def get_subclasses(cls, recursive=True):
         """ Enumerates all subclasses of a given class.
@@ -56,7 +61,6 @@ class SystemModel:
 
         cls_sub_dict = {
             cls.__name__: cls for cls in basecls.get_subclasses()}
-
         clsname = specs.pop("cls")
         cls = cls_sub_dict.get(clsname)
 
@@ -74,5 +78,3 @@ class SystemModel:
 
         return cls.from_dict(**specs)
 
-    def update_connection_bkd(self):
-        pass

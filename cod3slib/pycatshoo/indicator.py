@@ -43,7 +43,6 @@ class PycIndicator(IndicatorModel):
             raise ValueError(f"Statistic {stat_name} not supported")
         
             
-        
     def update_values(self):
 
         data_list = []
@@ -51,6 +50,9 @@ class PycIndicator(IndicatorModel):
             data_list.append(pd.DataFrame({
                 "instant": self.instants,
                 "name": self.name,
+                "comp": self.get_comp_name(),
+                "attr": self.get_attr_name(),
+                "type": self.get_type(),                
                 "stat": stat,
                 "value": self.to_pyc_stats(stat)()}))
             
@@ -63,6 +65,12 @@ class PycVarIndicator(PycIndicator):
     def get_type(self):
         return "VAR"
 
+    def get_comp_name(self):
+        return f"{self.component}"
+
+    def get_attr_name(self):
+        return f"{self.var}"
+    
     def get_expr(self):
         return f"{self.component}.{self.var}"
 
