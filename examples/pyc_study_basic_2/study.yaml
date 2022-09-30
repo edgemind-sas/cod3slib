@@ -1,0 +1,51 @@
+name: Test XPMBSA
+cls: PycStudy
+description: test
+system_model: system_specs.yaml
+indicators:
+  - component: CBTC
+    var: cmd_ouverture_pt_out
+    stats: [mean, stddev]
+
+  - component: CBTC
+    var: cmd_ouverture_pp_out
+    stats: [mean, stddev]
+
+  - component: CBTC
+    var: cmd_fermeture_pt_out
+    stats: [mean, stddev]
+
+  - component: CBTC
+    var: cmd_fermeture_pp_out
+    stats: [mean, stddev]
+
+  - component: MF19
+    var: cmd_ouverture_pt_fed
+    stats: [mean, stddev]
+    
+  - component: MF19
+    var: cmd_fermeture_pt_fed
+    stats: [mean, stddev]
+
+  - component: FQ
+    var: cmd_ouverture_pp_fed
+    stats: [mean, stddev]
+    
+  - component: FQ
+    var: cmd_fermeture_pp_fed
+    stats: [mean, stddev]
+
+simu_params:
+  nb_runs: 1
+#  result_filename: test_res.csv
+  schedule:
+    - start: 0
+      end: 500
+      nvalues: 100
+  seed: 1234
+
+hooks:
+  before_simu:
+    - example_before_simu.py
+  after_simu:
+    - example_after_simu.py

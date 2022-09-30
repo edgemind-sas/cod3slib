@@ -1,0 +1,134 @@
+name: "test 3 components"
+cls: PycSystem
+components:
+  CBTC:
+    cls: PycFlowComponent
+    flows:
+    - name: cmd_ouverture_pt
+      port: out
+    - name: cmd_ouverture_pp
+      port: out
+    - name: cmd_fermeture_pt
+      port: out
+    - name: cmd_fermeture_pp
+      port: out
+    - name: cmd_départ_mr
+      port: in
+
+    automata:
+    - name: mr_mouv
+      states:
+        - mr_absent
+        - mr_quai
+        - mr_départ
+      transitions:
+        - name: mr_absent_quai
+          source: mr_absent
+          target: mr_quai
+          occ_law:
+            dist: delay
+            time: 300
+        - name: mr_quai_départ
+          source: mr_quai
+          target: mr_départ
+          occ_law:
+            dist: delay
+            time: 60
+        - name: mr_départ_absent
+          source: mr_départ
+          target: mr_absent
+          occ_law:
+            dist: delay
+            time: 0
+
+
+  MF19:
+    cls: PycFlowComponent
+    flows:
+    - name: cmd_ouverture_pt
+      port: in
+    - name: cmd_fermeture_pt
+      port: in
+    - name: cmd_départ_mr
+      port: out      
+    automata:
+    - name: cycle_pt
+      states:
+        - pt_fermées
+#        - pt_ouverture
+        - pt_ouvertes
+#        - pt_fermeture
+      transitions:
+        - name: fermées_ouvertes
+          source: pt_fermées
+          target: pt_ouvertes
+          occ_law:
+            dist: delay
+            time: 1
+        - name: ouvertes_fermées
+          source: pt_ouvertes
+          target: pt_fermées
+          occ_law:
+            dist: delay
+            time: 2
+      
+  FQ:
+    cls: PycFlowComponent
+    flows:
+    - name: cmd_ouverture_pp
+      port: in
+    - name: cmd_fermeture_pp
+      port: in
+    - name: cmd_départ_mr
+      port: out      
+
+    automata:
+    - name: cycle_pp
+      states:
+        - pp_fermées
+#        - pp_ouverture
+        - pp_ouvertes
+#        - pp_fermeture
+      transitions:
+        - name: fermées_ouvertes
+          source: pp_fermées
+          target: pp_ouvertes
+          occ_law:
+            dist: delay
+            time: 3
+        - name: ouvertes_fermées
+          source: pp_ouvertes
+          target: pp_fermées
+          occ_law:
+            dist: delay
+            time: 4
+    
+connections:
+  - origin_comp: CBTC
+    origin_iface: cmd_ouverture_pt_out
+    target_comp: MF19
+    target_iface: cmd_ouverture_pt_in
+  - origin_comp: CBTC
+    origin_iface: cmd_fermeture_pt_out
+    target_comp: MF19
+    target_iface: cmd_fermeture_pt_in
+
+  - origin_comp: CBTC
+    origin_iface: cmd_ouverture_pp_out
+    target_comp: FQ
+    target_iface: cmd_ouverture_pp_in
+  - origin_comp: CBTC
+    origin_iface: cmd_fermeture_pp_out
+    target_comp: FQ
+    target_iface: cmd_fermeture_pp_in
+
+  - origin_comp: MF19
+    origin_iface: cmd_départ_mr_out
+    target_comp: CBTC
+    target_iface: cmd_départ_mr_in
+
+  - origin_comp: FQ
+    origin_iface: cmd_départ_mr_out
+    target_comp: CBTC
+    target_iface: cmd_départ_mr_in
+

@@ -1,0 +1,12 @@
+<PY_PARAM NAME="test" TMAX="100" SEQ_NB="1000" RNG="yarn5" RNG_S="0">   
+  <!-- <VAR NAME="energie_electrique.energievar"            INITV="110.0" />                       <!-\- S2 -\-> -->
+  <!-- <ST NAME="energie_electrique.ON"                   INIT="1"/>  -->
+  <!-- <ST NAME="pump_1.up"                   INIT="1"/> -->
+  
+  <!-- <AUT NAME="pump_1.Dysfonctionnel automaton"            INITV="1" />  -->
+  
+  <!-- <MONIT_VAR NAME="energie_electrique.elec_flow"/> -->
+  <!-- <MONIT_VAR NAME="pump_1.hydr_out"/>  -->
+
+  <MONIT_TR NAME="#.*"/>
+</PY_PARAM> 
