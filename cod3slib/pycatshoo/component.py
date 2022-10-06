@@ -115,12 +115,11 @@ class PycFlowComponent(FlowComponentModel):
             self.bkd.addReference(f"{name}_in")
         
 
-    def add_flow_io(self, name, **kwargs):
+    def add_flow_io(self, name, var_type='bool', **kwargs):
         py_type, pyc_type = self.get_pyc_type(var_type)
 
         self.flow_in[name] = \
-            self.bkd.addVariable(f"{name}_in",
-                                 pyc_type, py_type())
+            self.bkd.addReference(f"{name}_in")
 
         self.flow_out[name] = \
             self.bkd.addVariable(f"{name}_out",
@@ -132,7 +131,7 @@ class PycFlowComponent(FlowComponentModel):
 
 
         
-    def add_mb_out(self, name, var_type='bool', **kwargs):
+    def add_mb_out(self, name, **kwargs):
 
         self.bkd.addMessageBox(f"{name}_out")
         self.bkd.addMessageBoxExport(f"{name}_out",

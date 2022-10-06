@@ -5,7 +5,6 @@ components:
     cls: PycFlowComponent
     flows:
     - name: elec
-      default: True
       port: out
 
   source_hydr:

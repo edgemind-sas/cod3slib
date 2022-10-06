@@ -12,15 +12,11 @@ indicators:
     stats: [mean, stddev]
 
   - component: pump
-    var: hydr
-    stats: [mean, stddev]
-
-  - component: pump
     var: hydr_out
     stats: [mean, stddev]
 
   - component: pump
-    var: elec
+    var: elec_fed
     stats: [mean, stddev]
 
 simu_params:
