@@ -17,6 +17,7 @@ from . import IndicatorModel
 from . import SystemModel
 import logging
 import pathlib
+import importlib
 
 installed_pkg = {pkg.key for pkg in pkg_resources.working_set}
 if 'ipdb' in installed_pkg:
@@ -35,7 +36,7 @@ class InstantLinearRange(pydantic.BaseModel):
 
     def get_instants_list(self):
         return list(np.linspace(self.start, self.end, self.nvalues))
-    
+
 
 class MCSimulationParam(pydantic.BaseModel):
     nb_runs: int = pydantic.Field(
@@ -56,6 +57,7 @@ class MCSimulationParam(pydantic.BaseModel):
 
         return sorted(instants)
 
+
 class HooksModel(pydantic.BaseModel):
 
     before_simu: typing.List[str] = pydantic.Field(
@@ -63,6 +65,7 @@ class HooksModel(pydantic.BaseModel):
 
     after_simu: typing.List[str] = pydantic.Field(
         None, description="Filenames to be executed after simulation")
+
 
 class StudyModel(pydantic.BaseModel):
 
@@ -74,7 +77,7 @@ class StudyModel(pydantic.BaseModel):
 
     system_model: SystemModelType = pydantic.Field(
         None, description="System model")
-    
+
     indicators: typing.List[IndicatorModel] = pydantic.Field(
         [], description="List of indicators")
 
@@ -83,6 +86,12 @@ class StudyModel(pydantic.BaseModel):
 
     hooks: HooksModel = pydantic.Field(
         None, description="Hooks to be executed")
+
+    working_dir: str = pydantic.Field(
+        ".", description="Working dir for relative path")
+
+    results_dir: str = pydantic.Field(
+        ".", description="Result dir for storing result")
 
     @classmethod
     def get_subclasses(cls, recursive=True):
@@ -116,9 +125,8 @@ class StudyModel(pydantic.BaseModel):
 
         return cls(**specs)
 
-    
     @classmethod
-    def from_yaml(cls, yaml_filename, **kwrds):
+    def from_yaml(cls, yaml_filename, working_dir=".", results_dir=".", **kwrds):
 
         with open(yaml_filename, 'r',
                   encoding="utf-8") as yaml_file:
@@ -130,12 +138,15 @@ class StudyModel(pydantic.BaseModel):
         if study_specs.get("system_model"):
             system_specs = study_specs.get("system_model")
             if isinstance(system_specs, str):
+                system_spec_path = os.path.join(working_dir, system_specs)
                 study_specs["system_model"] = \
-                    SystemModel.from_yaml(system_specs)
+                    SystemModel.from_yaml(system_spec_path)
             else:
                 study_specs["system_model"] = \
                     SystemModel.from_dict(**system_specs)
-                
+        study_specs["working_dir"] = working_dir
+        study_specs["results_dir"] = results_dir
+
         return cls.from_dict(**{**study_specs, **kwrds})
 
     def get_indicator_from_id(self, id):
@@ -144,9 +155,36 @@ class StudyModel(pydantic.BaseModel):
                 return indic
         return None
 
+    def run_hook(self, filename):
+        absolute_filename = os.path.join(self.working_dir, filename)
+        filename_path = pathlib.Path(absolute_filename)
+        if filename_path.is_file():
+            logging.info(
+                "Executing hook file : {absolute_filename}")
+
+            spec = importlib.util.spec_from_file_location(
+                "hook", absolute_filename)
+            module = importlib.util.module_from_spec(spec)
+
+            spec.loader.exec_module(module)
+            module.execute_hook(self)
+
+        else:
+            raise ValueError(
+                f"Hook file {filename} does not exist")
+
+    def run_before_hook(self):
+        if self.hooks.before_simu:
+            for filename in self.hooks.before_simu:
+                self.run_hook(filename)
+
+    def run_after_hook(self):
+        if self.hooks.after_simu:
+            for filename in self.hooks.after_simu:
+                self.run_hook(filename)
+
     def run_simu(self, **kwargs):
         pass
-
 
     def indic_to_frame(self):
 
@@ -155,7 +193,6 @@ class StudyModel(pydantic.BaseModel):
         else:
             return pd.concat([indic.values for indic in self.indicators],
                              axis=0, ignore_index=True)
-
 
     def indic_px_line(self,
                       x="instant",
@@ -169,9 +206,9 @@ class StudyModel(pydantic.BaseModel):
 
         if indic_df is None:
             return None
-        
+
         idx_stat_sel = indic_df["stat"].isin(["mean"])
-        
+
         indic_sel_df = indic_df.loc[idx_stat_sel]
 
         fig = px.line(indic_sel_df,
@@ -183,8 +220,8 @@ class StudyModel(pydantic.BaseModel):
         fig.update_layout(**layout)
 
         return fig
-        
-        
+
+
 # class STOStudyResults(pydantic.BaseModel):
 
 #     meta_data: STOMetaData = pydantic.Field(
@@ -321,5 +358,3 @@ class StudyModel(pydantic.BaseModel):
 #                                 index=False)
 
 #         writer.save()
-
-
