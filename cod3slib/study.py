@@ -4,14 +4,10 @@ import typing
 import pydantic
 import pkg_resources
 import yaml
-import uuid
 #from lxml import etree
-import subprocess
 import os
 import pathlib
 import plotly.express as px
-import sys
-import math
 #import colored
 from . import IndicatorModel
 from . import SystemModel
@@ -174,12 +170,12 @@ class StudyModel(pydantic.BaseModel):
                 f"Hook file {filename} does not exist")
 
     def run_before_hook(self):
-        if self.hooks.before_simu:
+        if self.hooks and self.hooks.before_simu:
             for filename in self.hooks.before_simu:
                 self.run_hook(filename)
 
     def run_after_hook(self):
-        if self.hooks.after_simu:
+        if self.hooks and self.hooks.after_simu:
             for filename in self.hooks.after_simu:
                 self.run_hook(filename)
 
